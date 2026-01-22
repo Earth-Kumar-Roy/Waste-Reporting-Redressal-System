@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base target="_top">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Recovery | Government of West Bengal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    
+    .gov-strip {
+      background: linear-gradient(to right, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #128807 66.66%);
+      height: 4px;
+    }
+
+    #otpSection, #newPassSection { display: none; }
+
+    .processing {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    input:disabled {
+      background-color: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+  <div class="gov-strip w-full"></div>
+
+  <header class="bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-landmark text-slate-400"></i>
+        <span>Official Personnel Registry | Account Recovery</span>
+      </div>
+      <button onclick="loadPage('Index')" class="text-emerald-700 hover:text-emerald-900 flex items-center gap-1 transition-all">
+        <i class="fas fa-home"></i> Return to Main Home
+      </button>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-5">
+        <div class="bg-slate-800 text-white p-4 rounded-lg shadow-inner">
+          <i class="fas fa-user-shield text-3xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-black text-slate-800 leading-none uppercase tracking-tighter">Credential Recovery</h1>
+          <p class="text-[10px] text-emerald-700 font-extrabold tracking-[0.2em] uppercase mt-1">Waste Reporting & Redressal Unit</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-2 text-slate-300">
+        <i class="fas fa-key text-4xl opacity-20"></i>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden">
+      
+      <div class="bg-slate-900 px-8 py-4 text-center">
+        <div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+          <i class="fas fa-lock mr-2"></i> Secure Password Reset Gateway
+        </div>
+      </div>
+
+      <div class="p-8 space-y-6">
+        
+        <div id="emailSection" class="space-y-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Registered Official Email</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <i class="fas fa-envelope text-xs"></i>
+              </span>
+              <input type="email" id="userEmail" placeholder="example@domain.gov.in" required
+                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md outline-none focus:ring-1 focus:ring-emerald-600 text-sm font-semibold transition-all">
+            </div>
+          </div>
+          <button id="sendOtpBtn" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded shadow-lg uppercase tracking-[0.2em] transition-all">
+            Send Verification OTP
+          </button>
+        </div>
+
+        <div id="otpSection" class="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div class="text-center">
+             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enter 6-Digit Code</p>
+          </div>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+              <i class="fas fa-shield-alt text-xs"></i>
+            </span>
+            <input type="text" id="otp" placeholder="••••••" maxlength="6"
+              class="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-amber-200 rounded-md outline-none text-center font-mono font-black tracking-[0.6em] focus:border-amber-500 text-xl shadow-inner">
+          </div>
+          <div class="flex flex-col gap-3">
+            <button id="verifyBtn" class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black rounded shadow-lg uppercase tracking-[0.2em] transition-all">
+              Verify Code
+            </button>
+            <button id="resendBtn" class="w-full py-2.5 bg-slate-100 text-slate-400 font-black rounded border border-slate-200 text-[9px] uppercase tracking-widest transition-all">
+              Resend OTP
+            </button>
+          </div>
+        </div>
+
+        <div id="newPassSection" class="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-500 uppercase ml-1">New Access Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <i class="fas fa-lock text-xs"></i>
+              </span>
+              <input type="password" id="newPass" placeholder="Min. 6 Alphanumeric"
+                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md outline-none focus:ring-1 focus:ring-emerald-600 text-sm font-semibold transition-all">
+            </div>
+          </div>
+          <button id="changePassBtn" class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-black rounded shadow-lg uppercase tracking-[0.2em] transition-all">
+            Update Registry Credentials
+          </button>
+        </div>
+
+        <div id="status" class="text-center text-[10px] font-black min-h-[20px] py-1 uppercase tracking-widest"></div>
+
+        <div class="flex justify-center items-center pt-6 border-t border-slate-100">
+          <a id="loginNow" onclick="loadPage('Login')" class="text-emerald-800 font-black text-[10px] uppercase tracking-widest cursor-pointer hover:underline flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Return to Sign In
+          </a>
+        </div>
+      </div>
+
+      <footer class="bg-slate-50 p-6 text-center border-t border-slate-200">
+        <p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">© 2026 EKR | Kolkata Municipality Official Registry</p>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      if (!window._forgotPass) window._forgotPass = {};
+      const ns = window._forgotPass;
+      let processInterval = null;
+
+      if (ns.resendTimer) {
+        clearInterval(ns.resendTimer);
+        ns.resendTimer = null;
+      }
+
+      function byId(id) { return document.getElementById(id); }
+
+      function loadPage(pageName) {
+        google.script.run.withSuccessHandler(html => {
+          document.open(); document.write(html); document.close();
+        }).loadPage(pageName);
+      }
+      window.loadPage = loadPage;
+
+      function resetUI() {
+        const sendBtn = byId('sendOtpBtn');
+        const emailInput = byId('userEmail');
+        if (sendBtn) sendBtn.style.display = 'block';
+        if (emailInput) {
+           emailInput.disabled = false;
+           emailInput.value = '';
+        }
+        byId('otpSection').style.display = 'none';
+        byId('newPassSection').style.display = 'none';
+        byId('resendBtn').style.display = 'none';
+        byId('status').innerText = '';
+        byId('status').className = "text-center text-[10px] font-black min-h-[20px] py-1 uppercase tracking-widest";
+        ns.email = '';
+        if (ns.resendTimer) { clearInterval(ns.resendTimer); ns.resendTimer = null; }
+      }
+
+      function setProcessing(state, msg = "Processing") {
+        const statusEl = byId("status");
+        clearInterval(processInterval);
+        if (state) {
+          document.body.classList.add("processing");
+          statusEl.style.color = "#0369a1";
+          let dots = 0;
+          processInterval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            statusEl.innerText = msg + ".".repeat(dots);
+          }, 400);
+        } else {
+          document.body.classList.remove("processing");
+          statusEl.innerText = "";
+        }
+      }
+
+      function sendOtpHandler() {
+        const emailEl = byId('userEmail');
+        const email = String(emailEl.value || '').trim();
+        if (!email) { byId('status').innerText = "Email Required"; return; }
+
+        ns.email = email;
+        setProcessing(true, "QUEUING VERIFICATION");
+        byId('sendOtpBtn').disabled = true;
+
+        google.script.run.withSuccessHandler(res => {
+          setProcessing(false);
+          byId('status').innerText = res && res.msg ? res.msg : '';
+          if (res && res.success) {
+            emailEl.disabled = true; // Make email uneditable
+            byId('sendOtpBtn').style.display = 'none';
+            byId('otpSection').style.display = 'block';
+            startResendTimer();
+          } else {
+            byId('sendOtpBtn').disabled = false;
+          }
+        }).forgotPassword(email);
+      }
+
+      function resendOtpHandler() {
+        if (!ns.email) return;
+        setProcessing(true, "RETRANSMITTING");
+        google.script.run.withSuccessHandler(res => {
+          setProcessing(false);
+          byId('status').innerText = res && res.msg ? res.msg : '';
+          if (res && res.success) startResendTimer();
+        }).forgotPassword(ns.email);
+      }
+
+      function startResendTimer() {
+        const resendBtn = byId('resendBtn');
+        if (ns.resendTimer) { clearInterval(ns.resendTimer); ns.resendTimer = null; }
+        let countdown = 90;
+        resendBtn.style.display = 'block';
+        resendBtn.disabled = true;
+        ns.resendTimer = setInterval(() => {
+          countdown--;
+          resendBtn.innerText = `RESEND OTP (${countdown}s)`;
+          if (countdown <= 0) {
+            clearInterval(ns.resendTimer);
+            ns.resendTimer = null;
+            resendBtn.innerText = 'RESEND OTP NOW';
+            resendBtn.disabled = false;
+            resendBtn.className = "w-full py-2.5 bg-emerald-50 text-emerald-700 font-black rounded border border-emerald-200 text-[9px] uppercase tracking-widest transition-all";
+          }
+        }, 1000);
+      }
+
+      function verifyOtpHandler() {
+        const otp = String(byId('otp').value || '').trim();
+        if (!otp) { byId('status').innerText = "OTP Required"; return; }
+        setProcessing(true, "AUTHENTICATING");
+        google.script.run.withSuccessHandler(res => {
+          setProcessing(false);
+          byId('status').innerText = res && res.msg ? res.msg : '';
+          if (res && res.success) {
+            byId('otpSection').style.display = 'none';
+            byId('newPassSection').style.display = 'block';
+          }
+        }).ForgotPassVerOTP(ns.email, otp);
+      }
+
+      function changePasswordHandler() {
+        const newPass = String(byId('newPass').value || '').trim();
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+        if (!passwordPattern.test(newPass)) {
+          byId('status').innerText = "Complexity Error: Min 6 Alphanumeric";
+          byId('status').style.color = "#b91c1c";
+          return;
+        }
+        setProcessing(true, "UPDATING REGISTRY");
+        google.script.run.withSuccessHandler(res => {
+          setProcessing(false);
+          byId('status').innerText = res && res.msg ? res.msg : '';
+          if (res && res.success) {
+            byId('newPassSection').style.display = 'none';
+            byId('status').innerText = "SUCCESS. LOGIN TO CONTINUE.";
+            byId('status').style.color = "#15803d";
+          }
+        }).changePassword(ns.email, newPass);
+      }
+
+      function attachHandlers() {
+        byId('sendOtpBtn').onclick = sendOtpHandler;
+        byId('resendBtn').onclick = resendOtpHandler;
+        byId('verifyBtn').onclick = verifyOtpHandler;
+        byId('changePassBtn').onclick = changePasswordHandler;
+      }
+
+      init();
+      function init() { resetUI(); attachHandlers(); }
+    })();
+  </script>
+</body>
+
+</html>
