@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Completed Waste Tasks | History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .modal-content::-webkit-scrollbar { width: 6px; }
+    .modal-content::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+    
+    /* Animation for list items */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .card-animate { animation: slideIn 0.3s ease forwards; }
+  </style>
+</head>
+
+<body class="bg-slate-50 font-sans min-h-screen pb-10">
+
+  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="left-actions">
+        <button id="backBtn" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 group">
+          <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Back to Pending
+        </button>
+      </div>
+      <div class="text-right">
+        <span class="text-[10px] uppercase tracking-widest opacity-60 block font-bold">Worker Session</span>
+        <div class="flex items-center gap-2 text-sm">
+          <i class="fas fa-user-check text-emerald-400"></i>
+          <b id="workerName">Worker</b>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-3xl mx-auto px-4 pt-8 pb-4 text-center">
+    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight flex items-center justify-center gap-3">
+      <i class="fas fa-history text-emerald-600"></i>
+      Completed History
+    </h2>
+    <p class="text-slate-500 text-sm mt-1">Review finalized tasks and submission proofs.</p>
+    <p class="text-slate-500 text-sm mt-1">Applies only to the user’s region.</p>
+    <div class="h-1 w-20 bg-emerald-500 mx-auto mt-3 rounded-full"></div>
+  </div>
+
+  <main class="max-w-3xl mx-auto px-4" id="completedTaskContainer">
+    <div class="loading bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center text-slate-400" id="loadingMessage">
+      <i class="fas fa-circle-notch animate-spin text-3xl mb-3 text-emerald-500"></i>
+      <p class="font-medium tracking-wide">Retrieving completed records...</p>
+    </div>
+  </main>
+
+  <div class="modal p-4" id="completedTaskModal" aria-hidden="true">
+    <div class="modal-content bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
+      
+      <button id="modalClose" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl z-50 transition">
+        <i class="fas fa-times-circle"></i>
+      </button>
+
+      <div class="bg-emerald-800 p-6 text-white">
+        <h3 id="comp_mName" class="text-xl font-bold uppercase tracking-tight pr-6"></h3>
+        <div class="flex items-center gap-3 mt-2 text-xs font-mono opacity-90 bg-emerald-900/40 w-fit px-2 py-1 rounded">
+          <span>TICKET: #<span id="comp_mTicket"></span></span>
+          <span class="h-3 w-px bg-emerald-600"></span>
+          <span><i class="fas fa-map-marker-alt text-emerald-400 mr-1"></i> <span id="comp_mRegion"></span></span>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-6 overflow-y-auto">
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-[10px] text-slate-400 font-black uppercase block mb-1 tracking-widest">Contact Phone</span>
+            <div class="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <i class="fas fa-phone-alt text-emerald-600"></i> <span id="comp_mPhone"></span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center">
+             <a id="comp_mapLink" class="w-full bg-blue-600 text-white text-center py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-sm" target="_blank" rel="noopener">
+               <i class="fas fa-location-arrow mr-1"></i> Google Maps
+             </a>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+           <div class="bg-emerald-50 p-4 rounded-xl border-l-4 border-emerald-500">
+            <span class="text-[10px] text-emerald-700 font-black uppercase block mb-1">Description</span>
+            <p id="comp_mDesc" class="text-sm text-slate-700 leading-relaxed italic"></p>
+           </div>
+
+           <div class="bg-slate-900 text-slate-300 p-4 rounded-xl text-[11px] space-y-2 font-mono border-t border-emerald-500">
+              <div class="flex justify-between border-b border-slate-800 pb-1">
+                <span>ASSIGNED AT:</span> <span id="comp_assignTime" class="text-white"></span>
+              </div>
+              <div class="flex justify-between border-b border-slate-800 pb-1">
+                <span>COMPLETED AT:</span> <span id="comp_completeTime" class="text-emerald-400 font-bold"></span>
+              </div>
+              <div class="flex justify-between pt-1 border-b border-slate-800 pb-1">
+                <span>WORKERS INVOLVED:</span> <span id="comp_workerNames" class="text-white font-bold"></span>
+              </div>
+
+              <!-- New rating & feedback lines -->
+              <div class="flex justify-between pt-1 border-b border-slate-800 pb-1">
+                <span>RATING:</span> <span id="comp_rating" class="text-emerald-300 font-bold"></span>
+              </div>
+              <div class="flex justify-between pt-1">
+                <span>FEEDBACK:</span> <span id="comp_ratingDesc" class="text-white"></span>
+              </div>
+
+           </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic">
+              <i class="fas fa-history"></i> Original State
+            </h4>
+            <div class="rounded-xl border-2 border-slate-100 overflow-hidden shadow-inner bg-slate-50">
+              <iframe id="comp_issueFrame" class="w-full h-56" allow="autoplay"></iframe>
+            </div>
+          </div>
+
+          <div class="space-y-2 pb-4">
+            <h4 class="text-xs font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 italic">
+              <i class="fas fa-check-circle"></i> After Cleanup Proof
+            </h4>
+            <div class="rounded-xl border-2 border-emerald-100 overflow-hidden shadow-md bg-white">
+              <iframe id="comp_doneFrame" class="w-full h-56" allow="autoplay"></iframe>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Show worker name
+      document.getElementById('workerName').textContent = localStorage.getItem('LOGGEDINUSER') || 'Worker';
+
+      // Clear any repeating timer left from other pages
+      if (window.refreshTimer) {
+        try { clearInterval(window.refreshTimer); } catch (e) {}
+        window.refreshTimer = null;
+      }
+
+      // Mark current page active
+      window.currentPage = 'WorkCompleted';
+
+      // Helper: extract drive file id
+      function extractDriveId(url) {
+        if (!url) return '';
+        var m = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+        if (m && m[1]) return m[1];
+        m = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+        if (m && m[1]) return m[1];
+        m = url.match(/([a-zA-Z0-9_-]{25,})/);
+        return m ? m[0] : '';
+      }
+
+      // Proper HTML escape for use in innerHTML contexts
+      function esc(s){
+        return String(s || '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#039;');
+      }
+
+      // Determine rating display text
+      function formatRating(r) {
+        if (r === null || r === undefined) return 'Not stated';
+        var s = String(r).trim();
+        if (!s) return 'Not stated';
+        if (s.indexOf('/') !== -1) return s; // already like "4/5"
+        // if numeric, append /5
+        var n = Number(s);
+        if (!isNaN(n)) {
+          // display integer where possible
+          if (Number.isInteger(n)) return s + '/5';
+          // keep one decimal if necessary
+          return (Math.round(n * 10) / 10) + '/5';
+        }
+        // otherwise show raw string
+        return s;
+      }
+
+      // Render list of completed tasks
+      function renderTasks(tasks) {
+        if (window.currentPage !== 'WorkCompleted') return;
+
+        var box = document.getElementById('completedTaskContainer');
+        box.innerHTML = '';
+
+        if (!tasks || !tasks.length) {
+          box.innerHTML = `
+            <div class="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center">
+               <i class="fas fa-box-open text-4xl text-slate-200 mb-3"></i>
+               <p class="text-slate-500 font-bold">No completed records found 🎉</p>
+            </div>`;
+          return;
+        }
+
+        tasks.forEach(function(t, index){
+          var card = document.createElement('div');
+          card.className = 'bg-white p-5 rounded-2xl border-l-8 border-slate-300 shadow-sm hover:border-emerald-500 hover:shadow-md hover:translate-x-1 transition-all cursor-pointer flex justify-between items-center group card-animate mb-4';
+          card.style.animationDelay = (index * 0.05) + 's';
+          card.innerHTML = `
+            <div class="flex-1">
+              <div class="text-xs font-black text-slate-400 uppercase mb-1 tracking-widest group-hover:text-emerald-600 transition">Ticket #${esc(t.ticket || '')}</div>
+              <div class="text-lg font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition">${esc(t.name || '')}</div>
+              <div class="text-sm text-slate-500 mt-1 line-clamp-1 italic">${esc(t.description || '')}</div>
+            </div>
+            <div class="ml-4 text-slate-200 group-hover:text-emerald-500 transition">
+              <i class="fas fa-chevron-right text-xl"></i>
+            </div>`;
+          card.addEventListener('click', function(){ openModal(t); });
+          box.appendChild(card);
+        });
+      }
+
+      // Open modal — populate all fields including rating & feedback
+      function openModal(t) {
+        if (window.currentPage !== 'WorkCompleted') return;
+
+        document.getElementById('comp_mName').textContent = t.name || '';
+        document.getElementById('comp_mTicket').textContent = t.ticket || '';
+        document.getElementById('comp_mPhone').textContent = t.phone || '';
+        document.getElementById('comp_mRegion').textContent = t.region || '';
+        document.getElementById('comp_mDesc').textContent = t.description || '';
+
+        // Assigned time: try common keys
+        var assign = t['TimeStamp'] || t.Timestamp || t.timestamp || t.timeStamp || '';
+        document.getElementById('comp_assignTime').textContent = assign || 'N/A';
+
+        // Completion time: try multiple keys (server already provides "Completion Timestamp" and aliases)
+        var completion = t['Completion Timestamp'] || t.CompletionTimestamp || t.completionTimestamp || t.completed || '';
+        document.getElementById('comp_completeTime').textContent = completion || 'N/A';
+
+        // Workers
+        document.getElementById('comp_workerNames').textContent = t.workers || 'N/A';
+
+        // Rating and feedback (new feature)
+        var rawRating = t.Rating || t.rating || '';
+        var ratingText = formatRating(rawRating);
+        var rawFeedback = t['Rating Description'] || t.RatingDescription || t.ratingDescription || t['Rating Description'] || '';
+        var feedbackText = (rawFeedback && String(rawFeedback).trim()) ? String(rawFeedback) : 'Not stated';
+
+        document.getElementById('comp_rating').textContent = ratingText;
+        document.getElementById('comp_ratingDesc').textContent = feedbackText;
+
+        // Map link
+        document.getElementById('comp_mapLink').href =
+          'https://www.google.com/maps?q=' + encodeURIComponent((t.lat||'') + ',' + (t.lng||''));
+
+        // Images: Drive preview
+        var issueId = extractDriveId(t.image || '');
+        var doneId = extractDriveId(t.completedImage || '');
+        document.getElementById('comp_issueFrame').src = issueId ? ('https://drive.google.com/file/d/' + encodeURIComponent(issueId) + '/preview') : '';
+        document.getElementById('comp_doneFrame').src = doneId ? ('https://drive.google.com/file/d/' + encodeURIComponent(doneId) + '/preview') : '';
+
+        // Show modal
+        var modal = document.getElementById('completedTaskModal');
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden','false');
+      }
+
+      // Close modal
+      function closeModal() {
+        var modal = document.getElementById('completedTaskModal');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden','true');
+        try { 
+          document.getElementById('comp_issueFrame').src = ''; 
+          document.getElementById('comp_doneFrame').src = ''; 
+        } catch(e){}
+      }
+
+      // Server communication
+      function loadTasks() {
+        var region = localStorage.getItem('USER_REGION') || '';
+        if (typeof google === 'undefined' || !google.script || !google.script.run) {
+          document.getElementById('completedTaskContainer').innerHTML =
+            '<div class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center font-bold">Offline: This page must run inside Google Apps Script.</div>';
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(tasks){
+            if (window.currentPage !== 'WorkCompleted') return;
+            renderTasks(tasks);
+          })
+          .withFailureHandler(function(err){
+            document.getElementById('completedTaskContainer').innerHTML =
+              '<div class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center font-bold italic text-xs">Server error: ' + (err && err.message ? esc(err.message) : 'unknown') + '</div>';
+          })
+          .getCompletedTasksByRegion(region);
+      }
+
+      // Event Listeners
+      document.getElementById('backBtn').addEventListener('click', function(){
+        if (window.refreshTimer) {
+          try { clearInterval(window.refreshTimer); } catch(e) {}
+          window.refreshTimer = null;
+        }
+        window.currentPage = null;
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run.withSuccessHandler(function(html){
+            if (typeof html === 'string') {
+              document.open();
+              document.write(html);
+              document.close();
+            }
+          }).loadPage('WorkPending');
+        }
+      });
+
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      document.getElementById('completedTaskModal').addEventListener('click', function(e){
+        if (e.target === this) closeModal();
+      });
+
+      window.addEventListener('load', function(){
+        window.currentPage = 'WorkCompleted';
+        loadTasks();
+      });
+
+      window.addEventListener('unload', function(){ window.currentPage = null; });
+      window.closeCompletedModal = closeModal;
+
+    })();
+  </script>
+</body>
+</html>
