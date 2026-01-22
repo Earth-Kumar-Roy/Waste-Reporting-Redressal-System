@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<base target="_top">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Admin Dashboard | Worker Approvals</title>
+
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+	<style>
+		.modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, .75);
+			backdrop-filter: blur(4px);
+			justify-content: center;
+			align-items: center;
+			z-index: 50;
+		}
+
+		.card-transition {
+			transition: all 0.2s ease-in-out;
+		}
+
+		.card-transition:hover {
+			transform: translateY(-2px);
+		}
+	</style>
+</head>
+
+<body class="bg-slate-100 min-h-screen font-sans">
+
+	<header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-500/20">
+		<div class="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+			<div>
+				<h1 class="text-2xl font-black uppercase tracking-tighter italic">
+					Admin<span class="text-emerald-500">Panel</span>
+				</h1>
+				<p class="text-[7px] text-slate-400 font-bold uppercase tracking-widest">Worker Verification & Control
+				</p>
+			</div>
+			<div class="flex gap-3">
+				<button onclick="loadAll()" class="bg-slate-500 hover:bg-slate-500 px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-slate-600">
+        <i class="fas fa-users"></i> All Accounts
+      </button>
+				<button onclick="loadPending()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2">
+        <i class="fas fa-user-clock text-emerald-200"></i> Pending Only
+      </button>
+				<button onclick="loadPage('AdminLogin')" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-xs font-bold transition">
+              <i class="fas fa-sign-out-alt"></i>
+      </button>
+			</div>
+		</div>
+	</header>
+
+	<div class="max-w-6xl mx-auto px-4 pt-8">
+		<div class="grid grid-cols-1 gap-4">
+			<div class="relative group w-full">
+				<i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors"></i>
+				<input id="searchBox" type="text"
+		      placeholder="Search by name, email, or username..."
+		      class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-200
+		             focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10
+		             outline-none transition-all shadow-sm">
+		  </div>
+			</div>
+
+		<main id="cardContainer"
+			class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div class="col-span-full py-20 text-center text-slate-400">
+				<i class="fas fa-circle-notch animate-spin text-4xl mb-4 text-emerald-500"></i>
+				<p class="font-bold tracking-tight">Syncing Worker Data...</p>
+			</div>
+		</main>
+
+		<div id="workerModal" class="modal">
+			<div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative overflow-hidden m-4">
+				<button onclick="closeModal()" class="absolute top-5 right-5 text-2xl text-white/50 hover:text-white transition-colors z-10">
+      <i class="fas fa-times-circle"></i>
+    </button>
+
+				<div class="bg-slate-900 p-8 text-white relative">
+					<div class="absolute top-0 right-0 p-8 opacity-10">
+						<i class="fas fa-id-card text-6xl"></i>
+					</div>
+					<h3 id="mName" class="text-2xl font-black uppercase text-emerald-400 tracking-tight"></h3>
+					<p id="mEmail" class="text-sm opacity-60 font-mono"></p>
+				</div>
+
+				<div class="p-8 space-y-6">
+					<div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+						<div class="space-y-1">
+							<p class="text-[10px] uppercase font-bold text-slate-400">Username</p>
+							<p id="mUsername" class="font-semibold text-slate-700"></p>
+						</div>
+						<div class="space-y-1">
+							<p class="text-[10px] uppercase font-bold text-slate-400">Phone Number</p>
+							<p id="mPhone" class="font-semibold text-slate-700"></p>
+						</div>
+						<div class="space-y-1">
+							<p class="text-[10px] uppercase font-bold text-slate-400">Regional Zone</p>
+							<p id="mRegion" class="font-semibold text-slate-700"></p>
+						</div>
+						<div class="space-y-1">
+							<p class="text-[10px] uppercase font-bold text-slate-400">ID Proof </p>
+							<p id="mId" class="font-semibold text-slate-700 font-mono"></p>
+						</div>
+					</div>
+
+					<div
+						class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300 flex justify-between items-center">
+						<div>
+							<p class="text-[10px] uppercase font-bold text-slate-400">Current Status</p>
+							<span id="mStatus" class="font-black text-slate-600"></span>
+						</div>
+						<a id="mImage" target="_blank"
+							class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md">
+							<i class="fas fa-external-link-alt mr-1"></i> View ID
+						</a>
+					</div>
+
+					<div class="flex gap-4 pt-2">
+						<button onclick="decide('APPROVED')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black uppercase tracking-wider shadow-lg shadow-emerald-200 transition-all">
+          Approve
+        </button>
+						<button onclick="decide('REJECTED')" class="flex-1 bg-red-100 hover:bg-red-600 text-red-600 hover:text-white py-4 rounded-2xl font-black uppercase tracking-wider transition-all">
+          Reject
+        </button>
+					</div>
+
+					<div id="actionMsg" class="text-center text-xs font-bold min-h-[16px] animate-pulse"></div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			(function () {
+  "use strict";
+
+  let workers = [];
+  let current = null;
+
+  function loadPage(pageName) {
+      google.script.run.withSuccessHandler(function (html) {
+        document.open();
+        document.write(html);
+        document.close();
+      }).loadPage(pageName);
+    }
+
+  function loadPending() {
+    google.script.run.withSuccessHandler(render).getPendingWorkers();
+  }
+
+  function loadAll() {
+    google.script.run.withSuccessHandler(render).getAllWorkers();
+  }
+
+  function render(data) {
+    workers = data || [];
+    const box = document.getElementById("cardContainer");
+    box.innerHTML = "";
+
+    if (!workers.length) {
+      box.innerHTML = `
+        <div class="col-span-full text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+           <i class="fas fa-folder-open text-4xl text-slate-200 mb-4"></i>
+           <p class="text-slate-500 font-bold">No worker records found</p>
+        </div>`;
+      return;
+    }
+
+    workers.forEach(w => {
+      const div = document.createElement("div");
+      div.className = "bg-white p-6 rounded-2xl border border-slate-200 border-l-[6px] shadow-sm hover:shadow-xl cursor-pointer card-transition relative overflow-hidden group";
+      
+      const statusColor = w.status === "PENDING" ? "#facc15" : (w.status === "APPROVED" ? "#10b981" : "#ef4444");
+      div.style.borderLeftColor = statusColor;
+
+      div.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div class="text-[10px] uppercase font-black px-2 py-1 rounded bg-slate-100 text-slate-500 group-hover:bg-slate-800 group-hover:text-white transition-colors">${w.status}</div>
+          <i class="fas fa-chevron-right text-slate-200 group-hover:text-emerald-500 transition-colors"></i>
+        </div>
+        <div class="text-lg font-black text-slate-800 leading-tight">${w.name}</div>
+        <div class="text-sm text-slate-500 truncate mb-2">${w.email}</div>
+        <div class="flex items-center gap-2 mt-4 pt-4 border-t border-slate-50">
+          <div class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] text-slate-400">
+            <i class="fas fa-at"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-400">${w.username}</span>
+        </div>
+      `;
+      div.onclick = () => openModal(w);
+      box.appendChild(div);
+    });
+  }
+
+  function openModal(w) {
+    current = w;
+    document.getElementById("mName").textContent = w.name;
+    document.getElementById("mEmail").textContent = w.email;
+    document.getElementById("mUsername").textContent = w.username;
+    document.getElementById("mPhone").textContent = w.phone;
+    document.getElementById("mRegion").textContent = w.region;
+    document.getElementById("mId").textContent = w.id;
+    document.getElementById("mStatus").textContent = w.status;
+    document.getElementById("mImage").href = w.image;
+    document.getElementById("actionMsg").textContent = "";
+    document.getElementById("workerModal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("workerModal").style.display = "none";
+    current = null;
+  }
+
+  function decide(action) {
+    const msg = document.getElementById("actionMsg");
+    msg.textContent = "⚙️ UPDATING DATABASE...";
+    msg.className = "text-center text-xs font-bold text-emerald-600";
+
+    google.script.run
+      .withSuccessHandler(r => {
+        msg.textContent = "✅ SUCCESS: " + r;
+        setTimeout(() => {
+          closeModal();
+          loadPending();
+        }, 1200);
+      })
+      .withFailureHandler(e => {
+        msg.textContent = "❌ ERROR UPDATING RECORD";
+        msg.classList.add("text-red-600");
+      })
+      .updateWorkerStatus(current.username, action);
+  }
+
+  document.getElementById("searchBox").addEventListener("input", function () {
+    const q = this.value.toLowerCase();
+    render(workers.filter(w =>
+      w.name.toLowerCase().includes(q) ||
+      w.email.toLowerCase().includes(q) ||
+      w.username.toLowerCase().includes(q)
+    ));
+  });
+
+  window.loadPending = loadPending;
+  window.loadAll = loadAll;
+  window.closeModal = closeModal;
+  window.decide = decide;
+  window.loadPage = loadPage;
+  window.onload = loadPending;
+
+})();
+		</script>
+
+</body>
+
+</html>
