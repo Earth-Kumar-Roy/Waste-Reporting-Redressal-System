@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<base target="_top">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Personnel Registration </title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+
+		.gov-strip {
+			background: linear-gradient(to right, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #128807 66.66%);
+			height: 4px;
+		}
+
+		.processing {
+			opacity: 0.6;
+			pointer-events: none;
+		}
+
+		.validation-error {
+			border: 1.5px solid #e11d48 !important;
+		}
+
+		.validation-success {
+			border: 1.5px solid #10b981 !important;
+		}
+
+		input:focus {
+			outline: none;
+		}
+	</style>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+	<div class="gov-strip w-full"></div>
+
+	<header class="bg-white border-b border-slate-200 shadow-sm">
+		<div
+			class="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+			<div class="flex items-center gap-2">
+				<i class="fas fa-landmark text-slate-400"></i>
+				<span>Official Personnel Registry | Step 02</span>
+			</div>
+			<button onclick="loadPage('Index')" class="text-emerald-700 hover:text-emerald-900 flex items-center gap-1 transition-all">
+        <i class="fas fa-home"></i> Return to Main Home
+      </button>
+		</div>
+
+		<div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
+			<div class="flex items-center gap-5">
+				<div class="bg-slate-800 text-white p-4 rounded-lg shadow-inner">
+					<i class="fas fa-id-card text-3xl"></i>
+				</div>
+				<div>
+					<h1 class="text-xl font-black text-slate-800 leading-none uppercase tracking-tighter">Account
+						Registration Module</h1>
+					<p class="text-[10px] text-emerald-700 font-extrabold tracking-[0.2em] uppercase mt-1">Waste
+						Reporting & Redressal System</p>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<main class="flex-1 flex items-center justify-center p-4 my-8">
+		<div class="max-w-lg w-full bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden">
+
+			<div class="bg-slate-900 px-8 py-4">
+				<div class="text-[10px] font-black text-emerald-400 uppercase tracking-widest text-center">
+					<i class="fas fa-user-plus mr-2"></i> Official Personnel Data Entry
+				</div>
+			</div>
+
+			<div class="p-8 space-y-8" id="formContainer">
+
+				<section class="space-y-4">
+					<div class="space-y-1">
+						<label class="text-[10px] font-black text-slate-500 uppercase ml-1 tracking-widest">Verified Identity Email</label>
+						<div class="relative">
+							<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-emerald-600">
+                <i class="fas fa-check-circle text-xs"></i>
+              </span>
+							<input type="email" id="email" disabled class="w-full pl-10 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-md text-sm font-bold text-slate-600 cursor-not-allowed">
+            </div>
+						</div>
+				</section>
+
+				<section class="space-y-4">
+					<h3 class="text-[10px] font-black text-slate-400 uppercase border-b pb-2 tracking-[0.2em]">Personnel
+						Particulars</h3>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<input type="text" id="name" placeholder="Full Legal Name" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-medium focus:border-emerald-600 transition-all">
+						<input type="tel" id="phone" placeholder="Contact Number" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-medium focus:border-emerald-600 transition-all">
+          </div>
+						<select id="region" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold text-slate-700 focus:border-emerald-600 outline-none">
+            <option value="">-- Assigned Work Region --</option>
+            <option>Esplanade</option><option>Sealdah</option><option>Howrah</option>
+            <option>Bidhannagar</option><option>Baranagar</option><option>Dumdum</option>
+            <option>Tollygunge</option><option>Khidirpur</option><option>Newtown</option>
+            <option>Gobra</option>
+          </select>
+				</section>
+
+				<section class="space-y-4">
+					<h3 class="text-[10px] font-black text-slate-400 uppercase border-b pb-2 tracking-[0.2em]">Registry
+						Credentials</h3>
+
+					<div class="space-y-1">
+						<label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Username (Must start with alphabet, Min. 4 chars)</label>
+						<div class="relative">
+							<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <i class="fas fa-at text-xs"></i>
+              </span>
+							<input type="text" id="username" placeholder="johndoe_wb" required oninput="handleUsernameInput(this)" onblur="checkUsernameAvailability()"
+                class="w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-bold tracking-tight transition-all">
+							<span id="usernameCheckIcon" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                <i class="fas fa-spinner fa-spin text-slate-400" id="usernameSpinner"></i>
+                <i class="fas fa-check-circle text-emerald-600 hidden" id="usernameAvailable"></i>
+                <i class="fas fa-times-circle text-rose-600 hidden" id="usernameTaken"></i>
+              </span>
+						</div>
+						<p id="usernameMsg" class="text-[9px] font-bold text-rose-600 hidden uppercase mt-1"></p>
+					</div>
+
+					<div class="space-y-1">
+						<label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Password (Min. 6 chars, Alphanumeric)</label>
+						<div class="relative group">
+							<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                <i class="fas fa-key text-xs"></i>
+              </span>
+							<input type="password" id="password" placeholder="Create Access Password" required oninput="validatePassword()"
+                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md text-sm font-medium transition-all">
+            </div>
+							<p id="passwordError" class="text-[9px] font-bold text-rose-600 hidden uppercase mt-1"></p>
+						</div>
+				</section>
+
+				<section class="p-4 bg-slate-50 rounded-md border border-slate-200 space-y-4">
+					<label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Employee Verification Document</label>
+					<input type="text" id="idCardNumber" placeholder="Govt. ID / Aadhaar Number" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-md text-sm font-bold tracking-widest uppercase focus:border-emerald-600 transition-all">
+					<div class="space-y-2">
+						<p class="text-[9px] text-slate-400 font-black uppercase">Upload Scanned ID Copy (Max 3MB)</p>
+						<input type="file" id="idCardImage" accept="image/*" required class="w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-slate-800 file:text-white hover:file:bg-emerald-800 cursor-pointer">
+          </div>
+				</section>
+
+				<div class="pt-4 space-y-4">
+					<button id="submitBtn" onclick="createAccount()" class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white font-black rounded shadow-lg transition-all uppercase tracking-[0.3em] text-xs active:scale-[0.98]">
+            Finalize Registration
+          </button>
+					<div id="status" class="text-center text-[10px] font-black min-h-[20px] uppercase tracking-widest">
+					</div>
+				</div>
+
+				<div class="border-t border-slate-100 pt-6">
+					<button onclick="loadPage('Login')" class="w-full py-3 bg-white hover:bg-slate-50 text-slate-600 font-bold rounded border border-slate-200 flex items-center justify-center gap-2 transition-all text-[10px] uppercase tracking-widest">
+            <i class="fas fa-sign-in-alt text-emerald-800"></i> Already Registered? Login Here
+          </button>
+				</div>
+			</div>
+
+			<footer class="bg-slate-100 p-6 text-center border-t border-slate-200">
+				<p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">© 2026 EKR | Kolkata
+					Muncipality</p>
+			</footer>
+		</div>
+	</main>
+
+	<script>
+		(function() {
+      'use strict';
+      let usernameCheckTimeout;
+      let isUsernameAvailable = false;
+      let processingInterval = null;
+
+      window.onload = function() {
+        const verifiedEmail = localStorage.getItem("verifiedWorkerEmail");
+        if (!verifiedEmail) {
+          alert("Unauthorized Access. Email verification required.");
+          loadPage('AuthenticateEmail');
+          return;
+        }
+        document.getElementById("email").value = verifiedEmail;
+      };
+
+      window.loadPage = function(page) {
+        google.script.run.withSuccessHandler(html => {
+          document.open(); document.write(html); document.close();
+        }).loadPage(page);
+      };
+
+      /* Username Validation Logic */
+      window.handleUsernameInput = function(field) {
+        let val = field.value.toLowerCase();
+
+        // Strict Rule: First character MUST be an alphabet (a-z)
+        if (val.length > 0 && !/[a-z]/.test(val.charAt(0))) {
+            val = ""; // Clear if user tries to start with number/symbol
+        }
+
+        // Rule: Remove any character that is not a-z, 0-9, or _
+        val = val.replace(/[^a-z0-9_]/g, "");
+        field.value = val;
+
+        const msg = document.getElementById("usernameMsg");
+        
+        if (val.length > 0 && val.length < 4) {
+          msg.innerText = "Minimum 4 characters required";
+          msg.classList.remove("hidden");
+          field.classList.add("validation-error");
+          isUsernameAvailable = false;
+        } else if (val.length === 0) {
+          msg.innerText = "Must start with an alphabet";
+          msg.classList.remove("hidden");
+          field.classList.add("validation-error");
+          isUsernameAvailable = false;
+        } else {
+          msg.classList.add("hidden");
+          field.classList.remove("validation-error");
+        }
+
+        clearTimeout(usernameCheckTimeout);
+        document.getElementById("usernameCheckIcon").classList.add("hidden");
+        if (val.length >= 4) {
+          usernameCheckTimeout = setTimeout(() => checkUsernameAvailability(), 800);
+        }
+      };
+
+      window.checkUsernameAvailability = function() {
+        const field = document.getElementById("username");
+        const username = field.value.trim();
+        const iconBox = document.getElementById("usernameCheckIcon");
+        const spinner = document.getElementById("usernameSpinner");
+        const available = document.getElementById("usernameAvailable");
+        const taken = document.getElementById("usernameTaken");
+
+        if (username.length < 4) return;
+
+        iconBox.classList.remove("hidden");
+        spinner.classList.remove("hidden");
+        available.classList.add("hidden");
+        taken.classList.add("hidden");
+
+        google.script.run.withSuccessHandler(isAvailable => {
+          spinner.classList.add("hidden");
+          if (isAvailable) {
+            available.classList.remove("hidden");
+            field.classList.add("validation-success");
+            field.classList.remove("validation-error");
+            isUsernameAvailable = true;
+          } else {
+            taken.classList.remove("hidden");
+            field.classList.add("validation-error");
+            field.classList.remove("validation-success");
+            isUsernameAvailable = false;
+          }
+        }).checkUsername(username);
+      };
+
+      /* Password Validation Logic */
+      window.validatePassword = function() {
+        const field = document.getElementById("password");
+        const pass = field.value;
+        const err = document.getElementById("passwordError");
+        
+        const hasLetter = /[a-zA-Z]/.test(pass);
+        const hasNumber = /[0-9]/.test(pass);
+        const isLongEnough = pass.length >= 6;
+
+        if (pass.length > 0 && !isLongEnough) {
+          err.innerText = "Too short (Min 6 chars)";
+          err.classList.remove("hidden");
+          field.classList.add("validation-error");
+          return false;
+        } else if (isLongEnough && (!hasLetter || !hasNumber)) {
+          err.innerText = "Must be Alphanumeric (Letter + Number)";
+          err.classList.remove("hidden");
+          field.classList.add("validation-error");
+          return false;
+          
+        } else {
+          err.classList.add("hidden");
+          field.classList.remove("validation-error");
+          if (isLongEnough) field.classList.add("validation-success");
+          return true;
+        }
+      };
+
+      window.createAccount = function() {
+        const statusEl = document.getElementById("status");
+        const fileInput = document.getElementById("idCardImage");
+        const file = fileInput.files[0];
+        
+        const data = {
+          name: document.getElementById("name").value.trim(),
+          email: document.getElementById("email").value,
+          phone: document.getElementById("phone").value.trim(),
+          region: document.getElementById("region").value,
+          username: document.getElementById("username").value.trim(),
+          password: document.getElementById("password").value.trim(),
+          idNumber: document.getElementById("idCardNumber").value.trim()
+        };
+
+        if (!data.name || !data.username || !data.password || !file || !isUsernameAvailable || !validatePassword()) {
+          statusEl.innerText = "Registry Error: Please verify credentials & fields";
+          statusEl.style.color = "#b91c1c";
+          return;
+        }
+
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("formContainer").classList.add("processing");
+        statusEl.style.color = "#0369a1";
+
+        // Dot animation logic
+        let dots = 0;
+        processingInterval = setInterval(() => {
+          dots = (dots + 1) % 4;
+          statusEl.innerText = "Transmitting to Official Registry" + ".".repeat(dots);
+        }, 400);
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          google.script.run.withSuccessHandler(res => {
+            clearInterval(processingInterval);
+            statusEl.innerText = res.msg;
+            if (res.success) {
+              localStorage.removeItem("verifiedWorkerEmail");
+              setTimeout(() => loadPage('Login'), 3000);
+            } else {
+              document.getElementById("submitBtn").disabled = false;
+              document.getElementById("formContainer").classList.remove("processing");
+            }
+          }).withFailureHandler(err => {
+            clearInterval(processingInterval);
+            statusEl.innerText = "Error: " + err;
+            statusEl.style.color = "#b91c1c";
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("formContainer").classList.remove("processing");
+          }).createAccount(data.name, data.email, data.phone, data.region, data.username, data.password, data.idNumber, e.target.result.split(",")[1], file.name);
+        };
+        reader.readAsDataURL(file);
+      };
+    })();
+	</script>
+</body>
+
+</html>
