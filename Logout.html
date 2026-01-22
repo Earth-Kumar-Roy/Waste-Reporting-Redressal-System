@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<base target="_top">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Personnel Logout </title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+
+		.gov-strip {
+			background: linear-gradient(to right, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #128807 66.66%);
+			height: 4px;
+		}
+	</style>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+	<div class="gov-strip w-full"></div>
+
+	<header class="bg-white border-b border-slate-200 shadow-sm">
+		<div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
+			<div class="flex items-center gap-5">
+				<div class="bg-emerald-800 text-white p-4 rounded-lg shadow-inner">
+					<i class="fas fa-university text-3xl"></i>
+				</div>
+				<div>
+					<h1 class="text-xl font-black text-slate-800 leading-none uppercase tracking-tighter">Personnel
+						Access Gateway Logout</h1>
+					<p class="text-[10px] text-emerald-700 font-extrabold tracking-[0.2em] uppercase mt-1">Waste
+						Reporting & Redressal System</p>
+				</div>
+			</div>
+			<div class="hidden md:flex items-center gap-2 text-slate-300">
+				<i class="fas fa-power-off text-4xl opacity-20"></i>
+			</div>
+		</div>
+	</header>
+
+	<main class="flex-1 flex items-center justify-center p-4">
+		<div class="max-w-md w-full bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden">
+
+			<div class="bg-slate-900 px-8 py-4">
+				<div class="text-[10px] font-black text-white uppercase tracking-widest text-center">
+					<i class="fas fa-shield-alt mr-2 text-emerald-400"></i> Termination of Official Session
+				</div>
+			</div>
+
+			<div class="p-8 md:p-10 text-center space-y-6">
+				<div
+					class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto border border-red-100">
+					<i class="fas fa-sign-out-alt text-red-600 text-3xl"></i>
+				</div>
+
+				<div class="space-y-2">
+					<h2 class="text-lg font-black text-slate-800 uppercase tracking-tight">Confirm Logout</h2>
+					<p class="text-slate-500 text-[11px] font-medium leading-relaxed uppercase tracking-wide">
+						Are you sure you want to end your official session? <br>
+						<span class="text-red-600 font-bold">Unsaved progress may be lost.</span>
+					</p>
+				</div>
+
+				<div class="flex flex-col sm:flex-row gap-4 pt-4">
+					<button onclick="cancelLogout()"
+            class="flex-1 px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded transition-all active:scale-[0.98] border border-slate-200">
+            Cancel
+          </button>
+
+					<button onclick="confirmLogout()"
+            class="flex-1 px-6 py-4 bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-widest rounded shadow-lg shadow-red-100 transition-all active:scale-[0.98]">
+            Terminate Session
+          </button>
+				</div>
+			</div>
+
+			<footer class="bg-slate-50 p-6 text-center border-t border-slate-200">
+				<p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">© 2026 EKR | Kolkata
+					Municipality </p>
+			</footer>
+		</div>
+	</main>
+
+	<script>
+		/**
+     * Loads a page via Google Apps Script server-side function
+     */
+    function loadPage(pageName) {
+      google.script.run.withSuccessHandler(function (html) {
+        document.open();
+        document.write(html);
+        document.close();
+      }).loadPage(pageName);
+    }
+
+    /**
+     * Returns the worker to the pending tasks dashboard
+     */
+    function cancelLogout() {
+      // Returns back to the pending tasks list
+      loadPage('WorkPending');
+    }
+
+    /**
+     * Clears all session data and returns to the landing page
+     */
+    function confirmLogout() {
+      // Precise removal of session keys
+      localStorage.removeItem('LOGGEDINUSER');
+      localStorage.removeItem('USER_REGION');
+
+      // Comprehensive clear for security compliance
+      localStorage.clear();
+
+      // Redirect to the index page
+      loadPage('Index');
+    }
+	</script>
+</body>
+
+</html>
