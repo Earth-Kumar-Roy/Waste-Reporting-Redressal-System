@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Track Grievance </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .gov-strip {
+      background: linear-gradient(to right, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #128807 66.66%);
+      height: 4px;
+    }
+
+    #ticketDetails::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #ticketDetails::-webkit-scrollbar-thumb {
+      background: #065f46;
+      border-radius: 10px;
+    }
+
+    .star-active {
+      color: #fbbf24;
+    }
+
+    .star-inactive {
+      color: #d1d5db;
+    }
+
+    .star-rating i {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-900">
+
+  <div class="gov-strip w-full"></div>
+
+  <header class="bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-5">
+        <div class="bg-emerald-800 text-white p-4 rounded-lg shadow-inner">
+          <i class="fas fa-search-location text-3xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-black text-slate-800 leading-none uppercase tracking-tighter">Waste Reporting & Redressal System</h1>
+          <p class="text-[11px] text-emerald-700 font-extrabold tracking-[0.2em] uppercase mt-1">Dedicated to a Cleaner Kolkata</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-2 text-slate-400">
+        <i class="fas fa-fingerprint text-3xl opacity-40"></i>
+        <div class="text-[9px] font-bold uppercase leading-none">Digital<br>Initiative</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-6xl mx-auto flex">
+      <button onclick="loadPage('Index')" class="px-8 py-4 text-xs font-black hover:bg-slate-800 border-r border-slate-800 flex items-center gap-2 transition-all">
+        <i class="fas fa-home text-emerald-400"></i> HOME
+      </button>
+      <button onclick="loadPage('RaiseIssue')" class="px-8 py-4 text-xs font-black hover:bg-slate-800 border-r border-slate-800 flex items-center gap-2 transition-all">
+        <i class="fas fa-plus-circle"></i> NEW COMPLAINT
+      </button>
+      <button onclick="loadPage('CheckStatus')" class="px-8 py-4 text-xs font-black hover:bg-slate-800 border-r border-slate-800 bg-emerald-800 flex items-center gap-2 transition-all">
+        <i class="fas fa-tasks"></i> TRACK GRIEVANCE
+      </button>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto my-10 px-4">
+    <div class="bg-white border border-slate-200 shadow-xl rounded-lg overflow-hidden">
+
+      <div class="bg-blue-900 text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+        <i class="fas fa-info-circle"></i> Check Ticket Progress
+      </div>
+
+      <div class="p-8 md:p-12 space-y-10">
+        <section class="max-w-xl mx-auto space-y-4">
+          <form id="ticketForm" onsubmit="return validateTicketID()" class="space-y-4">
+            <div class="relative">
+              <label class="text-[10px] font-black text-slate-500 uppercase ml-1">Unique Ticket ID *</label>
+              <div class="relative mt-2">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                  <i class="fas fa-ticket-alt"></i>
+                </span>
+                <input type="text" id="ticketIDInput" required placeholder="e.g. 29EKR569" class="w-full pl-11 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ring-2 focus:ring-emerald-600 outline-none font-mono font-bold text-lg uppercase tracking-wider">
+              </div>
+            </div>
+            <button type="submit" id="trackBtn" class="w-full py-4 bg-slate-900 hover:bg-emerald-900 text-white font-black rounded-xl shadow-lg transition-all uppercase tracking-widest text-sm">
+              Retrieve Status from Registry
+            </button>
+            <div id="statusDisplay" class="text-center text-[10px] font-black uppercase text-emerald-700 italic h-4"></div>
+          </form>
+        </section>
+
+        <div id="ticketDetails" class="hidden animate-in fade-in slide-in-from-top-4 duration-500 border-t border-slate-100 pt-10 space-y-8">
+
+          <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <i class="fas fa-file-invoice"></i> Registry Information
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              <p class="text-slate-500 font-bold uppercase text-[11px]">Ticket ID:
+                <span id="ticketIdDisplay" class="text-slate-900 font-black ml-2 font-mono"></span>
+              </p>
+              <p class="text-slate-500 font-bold uppercase text-[11px]">Lodged On:
+                <span id="assignedTimeDisplay" class="text-slate-900 font-bold ml-2"></span>
+              </p>
+              <p class="text-slate-500 font-bold uppercase text-[11px]">Citizen:
+                <span id="nameDisplay" class="text-slate-900 font-bold ml-2"></span>
+              </p>
+              <p class="text-slate-500 font-bold uppercase text-[11px]">Authority:
+                <span id="regionDisplay" class="text-slate-900 font-bold ml-2"></span>
+              </p>
+              <p class="text-slate-500 font-bold uppercase text-[11px]">Phone:
+                <span id="contactDisplay" class="text-slate-900 font-bold ml-2"></span>
+              </p>
+            </div>
+            <button onclick="openInMaps()" class="mt-4 text-blue-700 text-[10px] font-black uppercase hover:underline flex items-center gap-2">
+              <i class="fas fa-map-marked-alt"></i> View Issue Location
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <p id="descriptionDisplay" class="text-sm text-slate-700 leading-relaxed bg-white p-4 rounded-xl italic border border-slate-200 shadow-inner"></p>
+          </div>
+
+          <div class="bg-slate-900 text-white p-6 rounded-2xl space-y-2 shadow-xl border-l-8 border-emerald-500 font-mono text-[11px]">
+            <p id="statusTicketDisplay" class="text-emerald-400 font-black text-sm uppercase tracking-widest"></p>
+            <div class="border-t border-slate-800 my-2"></div>
+            <p id="completionByDisplay" class="uppercase"></p>
+            <p id="completionTimeDisplay" class="uppercase"></p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="issueImageWrapper" class="hidden space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase">Original State</label>
+              <div class="rounded-xl border-2 border-slate-100 overflow-hidden h-60 bg-slate-100 shadow-inner">
+                <iframe id="comp_issueFrame" class="w-full h-full border-none" allow="autoplay"></iframe>
+              </div>
+            </div>
+            <div id="completedImageWrapper" class="hidden space-y-2">
+              <label class="text-[10px] font-black text-emerald-600 uppercase">After Resolution</label>
+              <div class="rounded-xl border-2 border-emerald-100 overflow-hidden h-60 bg-white shadow-md">
+                <iframe id="comp_doneFrame" class="w-full h-full border-none" allow="autoplay"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <p id="finalMessage" class="text-center text-sm font-black uppercase tracking-tighter text-emerald-800 italic"></p>
+
+          <div id="feedbackSection" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 hidden">
+            <div id="feedbackFormArea" class="hidden text-center">
+              <h4 class="text-xs font-black text-slate-800 uppercase mb-4">Citizen Feedback Registry</h4>
+              <div class="star-rating flex justify-center gap-3 mb-4" id="starContainer">
+                <i class="fas fa-star star-inactive text-3xl" data-rating="1"></i>
+                <i class="fas fa-star star-inactive text-3xl" data-rating="2"></i>
+                <i class="fas fa-star star-inactive text-3xl" data-rating="3"></i>
+                <i class="fas fa-star star-inactive text-3xl" data-rating="4"></i>
+                <i class="fas fa-star star-inactive text-3xl" data-rating="5"></i>
+              </div>
+              <textarea id="feedbackComment" maxlength="100" placeholder="Enter service feedback..." class="w-full p-4 border border-slate-200 rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-emerald-600 h-24 resize-none"></textarea>
+              <button onclick="submitFeedback()" id="submitFeedbackBtn" class="bg-emerald-700 text-white font-black py-3 px-8 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:bg-emerald-800 transition">Submit Feedback</button>
+              <div id="feedbackStatus" class="mt-2 text-[10px] font-bold italic uppercase tracking-widest"></div>
+            </div>
+
+            <div id="feedbackDisplayArea" class="hidden text-center">
+              <h4 class="text-xs font-black text-slate-800 uppercase mb-3">Submitted Feedback</h4>
+              <div id="ratedStarsDisplay" class="flex justify-center gap-1 mb-2"></div>
+              <p id="citizenFeedbackText" class="text-sm italic text-slate-600"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="bg-slate-100 p-8 border-t border-slate-200 text-center">
+        <p class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">© 2026 EKR | Kolkata Municipality</p>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      "use strict";
+      let selectedRating = 0;
+      let globalTicketID = "";
+      let processingInterval = null;
+      let currentLat, currentLon;
+
+      const starIcons = document.querySelectorAll("#starContainer i");
+      starIcons.forEach(star => {
+        star.addEventListener("click", function() {
+          selectedRating = this.getAttribute("data-rating");
+          updateStarUI(selectedRating);
+        });
+      });
+
+      function updateStarUI(rating) {
+        starIcons.forEach(s => {
+          if (parseInt(s.getAttribute("data-rating")) <= parseInt(rating)) {
+            s.classList.replace("star-inactive", "star-active");
+          } else {
+            s.classList.replace("star-active", "star-inactive");
+          }
+        });
+      }
+
+      function drivePreviewUrl(url) {
+        if (!url) return "";
+        let m = url.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+        let id = m ? m[1] : (url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/) ? url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/)[1] : "");
+        return id ? "https://drive.google.com/file/d/" + id + "/preview" : url;
+      }
+
+      window.openInMaps = function() {
+        if (!currentLat || !currentLon) return;
+        window.open("https://www.google.com/maps?q=" + currentLat + "," + currentLon, "_blank");
+      };
+
+      function clearDetails() {
+        const ids = ["ticketIdDisplay", "assignedTimeDisplay", "nameDisplay", "contactDisplay", "regionDisplay", "descriptionDisplay", "statusTicketDisplay", "completionByDisplay", "completionTimeDisplay", "finalMessage", "citizenFeedbackText", "ratedStarsDisplay", "feedbackStatus"];
+        ids.forEach(id => {
+          let el = document.getElementById(id);
+          if (el) el.innerText = "";
+        });
+        document.getElementById("issueImageWrapper").style.display = "none";
+        document.getElementById("completedImageWrapper").style.display = "none";
+        document.getElementById("feedbackSection").classList.add("hidden");
+        document.getElementById("feedbackFormArea").classList.add("hidden");
+        document.getElementById("feedbackDisplayArea").classList.add("hidden");
+        document.getElementById("comp_issueFrame").src = "";
+        document.getElementById("comp_doneFrame").src = "";
+        selectedRating = 0;
+        updateStarUI(0);
+      }
+
+      window.validateTicketID = function() {
+        const ticketID = document.getElementById("ticketIDInput").value.trim();
+        const statusBox = document.getElementById("statusDisplay");
+        const detailsBox = document.getElementById("ticketDetails");
+        const trackBtn = document.getElementById("trackBtn");
+
+        if (!ticketID) return false;
+
+        clearDetails();
+        globalTicketID = ticketID;
+        trackBtn.disabled = true;
+
+        let dots = 0;
+        statusBox.style.color = "#047857";
+        processingInterval = setInterval(() => {
+          dots = (dots + 1) % 4;
+          statusBox.innerText = "Synchronizing with Official Registry" + ".".repeat(dots);
+        }, 400);
+
+        google.script.run
+          .withSuccessHandler(function(response) {
+            clearInterval(processingInterval);
+            trackBtn.disabled = false;
+            statusBox.innerText = "";
+            if (response.error) {
+              statusBox.style.color = "red";
+              statusBox.innerText = response.error;
+              detailsBox.classList.add("hidden");
+            } else {
+              displayTicketDetails(response);
+            }
+          })
+          .withFailureHandler(function(err) {
+            clearInterval(processingInterval);
+            trackBtn.disabled = false;
+            statusBox.style.color = "#e11d48";
+            statusBox.innerText = "Registry Connection Error.";
+            detailsBox.classList.add("hidden");
+          })
+          .fetchTicketDetails(ticketID);
+
+        return false;
+      };
+
+      function displayTicketDetails(res) {
+        const detailsBox = document.getElementById("ticketDetails");
+        detailsBox.classList.remove("hidden");
+
+        document.getElementById("ticketIdDisplay").innerText = res.TicketID || "N/A";
+        document.getElementById("assignedTimeDisplay").innerText = res.TimeStamp || "N/A";
+        document.getElementById("nameDisplay").innerText = res.Name || "Anonymous";
+        document.getElementById("contactDisplay").innerText = res["Phone Number"] || "N/A";
+        document.getElementById("regionDisplay").innerText = res.Region || "N/A";
+        document.getElementById("descriptionDisplay").innerText = res.Description || "No statement recorded.";
+
+        currentLat = res.Latitude;
+        currentLon = res.Longitude;
+
+        if (res["Issue Image Link"]) {
+          document.getElementById("comp_issueFrame").src = drivePreviewUrl(res["Issue Image Link"]);
+          document.getElementById("issueImageWrapper").style.display = "block";
+        }
+
+        const statusUpper = (res.Status || "").toUpperCase();
+        if (statusUpper === "DONE") {
+          document.getElementById("statusTicketDisplay").innerText = "STATUS: RESOLVED";
+          document.getElementById("completionByDisplay").innerText = "CLEARED BY: " + (res["Workers Involved"] || "MUNICIPAL TEAM");
+          document.getElementById("completionTimeDisplay").innerText = "TIMESTAMP: " + (res["Completion Timestamp"] || "N/A");
+          document.getElementById("finalMessage").innerText = "Complaint resolved. Thank you for your contribution.";
+
+          if (res["Completed Issue Link"]) {
+            document.getElementById("comp_doneFrame").src = drivePreviewUrl(res["Completed Issue Link"]);
+            document.getElementById("completedImageWrapper").style.display = "block";
+          }
+
+          document.getElementById("feedbackSection").classList.remove("hidden");
+          const hasRating = res.Rating && res.Rating.toString().trim() !== "";
+          if (!hasRating) {
+            document.getElementById("feedbackFormArea").classList.remove("hidden");
+          } else {
+            document.getElementById("feedbackDisplayArea").classList.remove("hidden");
+            let starsHtml = "";
+            const ratingVal = parseInt(res.Rating);
+            for (let i = 0; i < 5; i++) {
+              starsHtml += `<i class="fas fa-star ${i < ratingVal ? 'text-amber-400' : 'text-slate-300'}"></i>`;
+            }
+            document.getElementById("ratedStarsDisplay").innerHTML = starsHtml;
+            document.getElementById("citizenFeedbackText").innerText = res["Rating Description"] || "No remarks.";
+          }
+        } else {
+          document.getElementById("statusTicketDisplay").innerText = "STATUS: OPEN - IN PROGRESS";
+          document.getElementById("finalMessage").innerText = "Squad notified. Verification pending.";
+        }
+      }
+
+      window.submitFeedback = function() {
+        const feedbackStatus = document.getElementById("feedbackStatus");
+        const comment = document.getElementById("feedbackComment").value.trim();
+        const btn = document.getElementById("submitFeedbackBtn");
+
+        if (selectedRating == 0) {
+          feedbackStatus.style.color = "red";
+          feedbackStatus.innerText = "Rating Required.";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Transmitting...";
+
+        google.script.run
+          .withSuccessHandler(function(msg) {
+            feedbackStatus.innerText = msg;
+            setTimeout(() => validateTicketID(), 1000);
+          })
+          .saveFeedback(globalTicketID, selectedRating, comment);
+      };
+
+      window.loadPage = function(page) {
+        google.script.run.withSuccessHandler(h => {
+          document.open();
+          document.write(h);
+          document.close();
+        }).loadPage(page);
+      };
+    })();
+  </script>
+</body>
+
+</html>
